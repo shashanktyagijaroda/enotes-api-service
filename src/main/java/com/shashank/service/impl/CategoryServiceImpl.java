@@ -12,6 +12,7 @@ import org.springframework.util.ObjectUtils;
 import com.shashank.dto.CategoryDto;
 import com.shashank.dto.CategoryResponseDto;
 import com.shashank.entity.Category;
+import com.shashank.exception.ResourceNotFoundException;
 import com.shashank.repository.CategoryRepository;
 import com.shashank.service.CategoryService;
 
@@ -73,13 +74,13 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
-	public CategoryDto getCategoryById(Integer id) {
-		Optional<Category> findByCategory = categoryRepository.findByIdAndIsDeletedFalse(id);
-		if (findByCategory.isPresent()) {
-			Category category = findByCategory.get();
+	public CategoryDto getCategoryById(Integer id) throws Exception {
+		Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
+				.orElseThrow(() -> new ResourceNotFoundException("category not found with id="+id));
+		if (!ObjectUtils.isEmpty(category)) {
 			return mapper.map(category, CategoryDto.class);
 		}
-		return null;
+		return null; 
 
 	}
 

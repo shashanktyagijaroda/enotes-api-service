@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shashank.dto.CategoryDto;
 import com.shashank.dto.CategoryResponseDto;
-import com.shashank.entity.Category;
+import com.shashank.exception.ResourceNotFoundException;
 import com.shashank.service.CategoryService;
 
 @RestController
@@ -40,7 +40,6 @@ public class CategoryController {
 
 	@GetMapping("/category")
 	public ResponseEntity<?> getAllCategory() {
-
 		List<CategoryDto> allCategory = categoryService.getAllCategory();
 		if (CollectionUtils.isEmpty(allCategory)) {
 			return ResponseEntity.noContent().build();
@@ -61,10 +60,10 @@ public class CategoryController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id) {
+	public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id) throws Exception {
 		CategoryDto categoryDto = categoryService.getCategoryById(id);
 		if (ObjectUtils.isEmpty(categoryDto)) {
-			return new ResponseEntity<>("Category not found with id" + id, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>("Internal Server Error", HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<>(categoryDto, HttpStatus.OK);
 	}
@@ -76,6 +75,6 @@ public class CategoryController {
 			return new ResponseEntity<>("Category deleted successfully", HttpStatus.OK);
 		}
 		return new ResponseEntity<>("category not deleted", HttpStatus.INTERNAL_SERVER_ERROR);
-	}
 
+	}
 }
