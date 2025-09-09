@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shashank.dto.CategoryDto;
 import com.shashank.dto.CategoryResponseDto;
-import com.shashank.exception.ResourceNotFoundException;
 import com.shashank.service.CategoryService;
 
 @RestController
