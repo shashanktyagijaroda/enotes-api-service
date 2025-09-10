@@ -15,6 +15,7 @@ import com.shashank.entity.Category;
 import com.shashank.exception.ResourceNotFoundException;
 import com.shashank.repository.CategoryRepository;
 import com.shashank.service.CategoryService;
+import com.shashank.util.Validation;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -24,19 +25,23 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Autowired
 	private CategoryRepository categoryRepository;
+	@Autowired
+	private Validation validation;
 
 	@Override
 	public Boolean saveCategory(CategoryDto categoryDto) {
-		
+		// validation checking
+		validation.categoryValidation(categoryDto);
 		Category category = mapper.map(categoryDto, Category.class);
-		if(ObjectUtils.isEmpty(category.getId())) {
+
+		if (ObjectUtils.isEmpty(category.getId())) {
 			category.setIsDeleted(false);
 			category.setCreatedBy(1);
 			category.setCreatedOn(new Date());
-		}else {
+		} else {
 			updateCategory(category);
 		}
-		
+
 		Category saveCategory = categoryRepository.save(category);
 		if (ObjectUtils.isEmpty(saveCategory)) {
 			return false;
@@ -46,13 +51,13 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	private void updateCategory(Category category) {
-		 Optional<Category> findById = categoryRepository.findById(category.getId());
-		if(findById.isPresent()) {
+		Optional<Category> findById = categoryRepository.findById(category.getId());
+		if (findById.isPresent()) {
 			Category existCategory = findById.get();
 			category.setCreatedBy(existCategory.getCreatedBy());
 			category.setCreatedOn(existCategory.getCreatedOn());
 			category.setIsDeleted(existCategory.getIsDeleted());
-			
+
 			category.setUpdatedBy(1);
 			category.setUpdatedOn(new Date());
 		}
@@ -76,11 +81,11 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public CategoryDto getCategoryById(Integer id) throws Exception {
 		Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
-				.orElseThrow(() -> new ResourceNotFoundException("category not found with id="+id));
+				.orElseThrow(() -> new ResourceNotFoundException("category not found with id=" + id));
 		if (!ObjectUtils.isEmpty(category)) {
 			return mapper.map(category, CategoryDto.class);
 		}
-		return null; 
+		return null;
 
 	}
 
