@@ -12,6 +12,7 @@ import org.springframework.util.ObjectUtils;
 import com.shashank.dto.CategoryDto;
 import com.shashank.dto.CategoryResponseDto;
 import com.shashank.entity.Category;
+import com.shashank.exception.ExistDataException;
 import com.shashank.exception.ResourceNotFoundException;
 import com.shashank.repository.CategoryRepository;
 import com.shashank.service.CategoryService;
@@ -30,14 +31,21 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public Boolean saveCategory(CategoryDto categoryDto) {
+		
 		// validation checking
 		validation.categoryValidation(categoryDto);
+		
+		//check category exist or not 
+	Boolean exist= categoryRepository.existsByName(categoryDto.getName().trim());
+	if(exist) {
+		throw new ExistDataException("category already exist");
+	}
+		
 		Category category = mapper.map(categoryDto, Category.class);
 
 		if (ObjectUtils.isEmpty(category.getId())) {
 			category.setIsDeleted(false);
-			category.setCreatedBy(1);
-			category.setCreatedOn(new Date());
+			
 		} else {
 			updateCategory(category);
 		}
@@ -57,9 +65,6 @@ public class CategoryServiceImpl implements CategoryService {
 			category.setCreatedBy(existCategory.getCreatedBy());
 			category.setCreatedOn(existCategory.getCreatedOn());
 			category.setIsDeleted(existCategory.getIsDeleted());
-
-			category.setUpdatedBy(1);
-			category.setUpdatedOn(new Date());
 		}
 	}
 
